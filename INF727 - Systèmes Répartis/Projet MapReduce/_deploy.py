@@ -6,7 +6,7 @@ def deploy():
     login, dict_machines = class_machine.build_machines()
 
 
-    for machine in dict_machines.values():
+    for i,machine in enumerate(dict_machines.values()):
         responded = machine.ping()
 
         if responded:
@@ -15,10 +15,11 @@ def deploy():
 
             # Copie des scripts sur les machines (création d'un dossier python + copie des scripts)
             machine.execute("ssh {}@{} mkdir /tmp/{}/python".format(machine.login, machine.name, machine.login),print_out=True)
-            machine.execute(r"scp {}/*.py {}@{}:/tmp/{}/python/".format(param.scripts_path,machine.login, machine.name, machine.login), print_out=True,timeout=100)
-            machine.execute(r"scp {}/*.py {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
-            machine.execute(r"scp -r {}/param {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
-            machine.execute(r"scp -r {}/txt_files {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
+            machine.execute(r"scp {}/_slave.py {}@{}:/tmp/{}/python/".format(param.scripts_path,machine.login, machine.name,machine.login), print_out=True,timeout=100)
+            machine.execute(r"scp {}/param.py {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
+            machine.execute(r"scp -r {}/param {}@{}:/tmp/{}/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
+            #machine.execute(r"scp {}/*.py {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
+            #machine.execute(r"scp -r {}/txt_files {}@{}:/tmp/{}/python/".format(param.scripts_path, machine.login, machine.name,machine.login), print_out=True, timeout=100)
 
     pass
 

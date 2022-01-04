@@ -1,6 +1,6 @@
 import class_machine
 import param
-import _slave
+import os
 
 def master():
 
@@ -17,36 +17,39 @@ def master():
         lines = f.read().splitlines()
 
     # Création des splits
-    splits = {}
+    splits = []
     number = 0
-    last_i = 0
     step = int(len(lines)/nb_splits) + 1 if int(len(lines)/nb_splits) != len(lines)/nb_splits else int(len(lines)/nb_splits)
 
     for i in range(0,len(lines),step):
-        splits["S{}.txt".format(number)]=lines[i:i+step]
-        number +=1
+        filename = "S{}.txt".format(int(i/step))
 
-    # Machine sur laquelle on va mettre les splits
-    lst_machines = list(dict_machines.values())
+        file = open('splits/'+filename,'w',encoding='utf-8')
+        for line in lines[i:i+step]:
+            file.write(line + "\n")
+        file.close()
+
+        splits.append(filename)
+        number +=1
 
 
     # DEPLOIEMENT DES SPLITS -------------------------------------------------------------------------------
 
-    # Création des fichiers sur une machine
+    # Machines sur lesquelles on va mettre les splits
+    lst_machines = list(dict_machines.values())
 
-    for i,(key,value) in enumerate(splits.items()):
-        machine = lst_machines[i]
-        # Création du dossier splits
-        machine.execute("ssh {}@{} mkdir /tmp/{}/splits".format(machine.login, machine.name, machine.login),print_out=True,return_out = False,communicate=False)
+    # Création des dossiers (parallélisé)
+    for i,machine in enumerate(lst_machines):
+        machine.execute("ssh {}@{} mkdir /tmp/{}/splits".format(machine.login, machine.name, machine.login),print_out=True,return_out = False,communicate=False,timeout=30)
 
-        # Création des splits
-        machine.execute("ssh {}@{} touch /tmp/{}/splits/{}".format(machine.login,machine.name,machine.login,key),return_out = False,communicate=False)
-
-        # Remplissage des splits
-        machine.execute("ssh {}@{} echo {} > /tmp/{}/splits/{}".format(machine.login, machine.name,' '.join(value), machine.login,key),print_out=True,return_out = False, communicate = False)
-
+    # Attente que les dossiers soient bien créés
     for machine in lst_machines:
         machine.communicate()
 
-    # Execution de la phase de map sur toutes les machines
-    _slave.slave()
+    # Envoi des splits sur les machines (parallélisé)
+    for i,machine in enumerate(lst_machines):
+        machine.execute(r"scp splits/{} {}@{}:/tmp/{}/splits/".format(splits[i], machine.login, machine.name,machine.login), print_out=True,communicate=False, timeout=100)
+
+    # Attente que les envois soient terminés
+    for machine in lst_machines:
+        machine.communicate()
