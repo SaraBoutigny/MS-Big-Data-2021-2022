@@ -1,5 +1,5 @@
 import shlex,subprocess
-
+import os
 import param
 
 file_machines = param.file_machines
@@ -105,17 +105,41 @@ class machine:
         if return_out:
             return code == 0
 
+
+def multi_parallel_execution(dict_machines,command,timeout = 5, print_out = False, communicate = True):
+    """
+    Méthode qui permet d'éxécuter plusieurs commandes en parallèle
+
+    :param dict_machines: dictionnaire où les clés sont des noms de machine et les valeurs sont des objets machine
+    :return: nothing
+    """
+    for name, machine in dict_machines.items():
+        machine.execute(command,timeout,print_out,return_out=False,communicate=communicate)
+
+    if communicate:
+        for name, machine in dict_machines.items():
+            machine.communicate()
+    pass
+
+
 def build_machines():
     """
     Fonction qui lit les fichiers paramètres (login et machines sur lesquelles se connecter)
     et qui renvoie le login (string), ainsi que les machines sous forme d'un dictionnaire dont la clé
     est le nom de la machine et la valeur est une instance de la classe machine
     """
+    abs_path = os.path.abspath(__file__)
+    if '\\' in abs_path:
+        file_path = "/".join(abs_path.split('\\')[:-1]) + "/"
+    else:
+        file_path = "/".join(abs_path.split('/')[:-1]) + "/"
+
     # Récupération du login
-    with open(file_login, 'r', encoding='utf-8') as f:
+    with open(file_path+file_login, 'r', encoding='utf-8') as f:
         login = f.read()
 
-    with open(file_machines, 'r', encoding='utf-8') as f:
+    # Récupération des machines
+    with open(file_path+file_machines, 'r', encoding='utf-8') as f:
         machines = f.read().splitlines()
 
     dict_machines = {}
@@ -123,3 +147,4 @@ def build_machines():
         dict_machines[machine_name]=machine(machine_name,login)
 
     return login, dict_machines
+
