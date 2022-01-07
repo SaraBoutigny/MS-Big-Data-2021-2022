@@ -11,6 +11,7 @@ import numpy as np
 # ==================================================================================================================== #
 login, dict_machines = class_machine.build_machines()
 master_machine = list(dict_machines.values())[0]
+dict_machines.pop(list(dict_machines.keys())[0])
 lst_machines_names = list(dict_machines.keys())
 host_name = socket.gethostname()
 filename = sys.argv[2] if len (sys.argv) > 2 else ""
@@ -89,7 +90,7 @@ if sys.argv[1] == '0':
 # ==================================================================================================================== #
 
 def shuffle(filename):
-    nb_machines_shuffle = 4
+    nb_machines_shuffle = len(dict_machines.keys())
     map_file = open(root_path+"/maps/"+filename, 'r', encoding='utf-8')
     shuffle_files = {}
     dict_dataframes = {}

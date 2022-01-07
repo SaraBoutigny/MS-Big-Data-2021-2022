@@ -6,6 +6,7 @@ import datetime as dt
 file_machines = param.file_machines
 file_login = param.file_login
 
+
 class timer:
     def __init__(self):
         pass
@@ -138,7 +139,7 @@ def multi_parallel_execution(dict_machines,command,command_param={},timeout = 5,
     pass
 
 
-def build_machines():
+def build_machines(ping_before=False):
     """
     Fonction qui lit les fichiers paramètres (login et machines sur lesquelles se connecter)
     et qui renvoie le login (string), ainsi que les machines sous forme d'un dictionnaire dont la clé
@@ -163,11 +164,14 @@ def build_machines():
     for machine_name in machines:
         machine_obj = machine(machine_name,login)
 
-        # ajout de la machine à la liste des machines si elle est disponible
-        if machine_obj.ping(timeout=10):
-            dict_machines[machine_name]=machine_obj
+        if ping_before:
+            # ajout de la machine à la liste des machines si elle est disponible
+            if machine_obj.ping(timeout=10):
+                dict_machines[machine_name]=machine_obj
+            else:
+                print(machine_obj.name, "did not answer")
         else:
-            print(machine_obj.name, "did not answer")
+            dict_machines[machine_name] = machine_obj
 
     return login, dict_machines
 

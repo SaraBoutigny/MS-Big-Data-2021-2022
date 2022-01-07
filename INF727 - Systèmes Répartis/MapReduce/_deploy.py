@@ -6,10 +6,8 @@ def deploy():
     print("*** DEPLOYING...")
     time = class_machine.timer();time.start()
 
-    login, dict_machines = class_machine.build_machines()
-    master_machine = (dict_machines.values())[0]
-    print("nombre de machines : ", len(dict_machines.keys()))
-    print (dict_machines.keys())
+    login, dict_machines = class_machine.build_machines(ping_before=True)
+    master_machine = list(dict_machines.values())[0]
     print_out=False
 
 
@@ -46,11 +44,14 @@ def deploy():
                                                "{3}": [machine.name for machine in dict_machines.values()]},
                                            timeout=20, print_out=print_out, communicate=True)
 
+    print("Deploy :", str(time.end()) + ")")
+
     # Envoi du master et du fichier texte sur la première machine
-    master_machine.execute("mkdir ")
-    master_machine.execute("scp ")
-    class_machine.machine.execute()
-    print("(Deploy time :",  str(time.end())+")")
+    master_machine.execute(f"ssh {login}@{master_machine.name} mkdir /tmp/{login}/python/txt_files/",timeout=20,print_out=print_out,return_out=False,communicate=True)
+    master_machine.execute(f"scp {param.file_wordcount} {login}@{master_machine.name}:/tmp/{login}/python/txt_files/",timeout=20,print_out=print_out,return_out=False,communicate=True)
+    master_machine.execute(f"scp {param.scripts_path}/_master.py {login}@{master_machine.name}:/tmp/{login}/python/",timeout=20,print_out=print_out,return_out=False,communicate=True)
+
+
     pass
 
 
