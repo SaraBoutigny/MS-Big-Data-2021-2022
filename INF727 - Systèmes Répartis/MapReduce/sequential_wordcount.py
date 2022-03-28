@@ -8,11 +8,12 @@ file = param.file_wordcount
 
 with open(file, 'r', encoding='utf-8') as f:
     lines = f.read().splitlines()
+    
+dico = {}
 
 for line in lines:
-
     words = line.split()
-    dico = {}
+    
     for word in words:
         if word in dico:
             dico[word] += 1
