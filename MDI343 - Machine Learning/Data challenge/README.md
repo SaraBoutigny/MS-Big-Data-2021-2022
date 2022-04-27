@@ -1,7 +1,7 @@
 **Context**
 
 I participated in this challenge as part of the evaluation of the Machine Learning module during my Post Master's Degree in Big Data (Télécom Paris, 2021-2022).
-We were graded on the basis of the individual notebook and our rank among the others 60 students competing. I reached the 3rd position with the following work.
+We were graded on the basis of the individual notebook and our rank among the others 60 students competing. I reached the 2nd position with the following work.
 
 **Presentation**
 
